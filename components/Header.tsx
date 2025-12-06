@@ -11,7 +11,7 @@ export default function Header() {
   return (
     <header>
       <div className="header-left">
-        <h1>Eburon</h1>
+        <h1>Panyero</h1>
       </div>
       <div className="header-right">
         <button

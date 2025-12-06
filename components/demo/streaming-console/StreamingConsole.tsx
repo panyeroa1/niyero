@@ -5,7 +5,6 @@
 */
 import { useEffect, useRef } from 'react';
 import Orb from './Orb';
-import WelcomeScreen from '../welcome-screen/WelcomeScreen';
 import { Modality, LiveServerContent, Tool } from '@google/genai';
 
 import { useLiveAPIContext } from '../../../contexts/LiveAPIContext';
@@ -23,7 +22,6 @@ export default function StreamingConsole() {
   const { client, setConfig, connected } = useLiveAPIContext();
   const { systemPrompt, voice, style, googleSearch, model } = useSettings();
   const { tools } = useTools();
-  const turns = useLogStore(state => state.turns);
   const { addSuggestion, setAnalyzing } = useSupervisor();
   
   // Silence Detection Refs
@@ -292,11 +290,7 @@ export default function StreamingConsole() {
 
   return (
     <div className="main-console-container">
-      {!connected ? (
-        <WelcomeScreen />
-      ) : (
-        <Orb />
-      )}
+      <Orb />
       <style>{`
         .main-console-container {
             width: 100%;

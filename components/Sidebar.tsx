@@ -145,8 +145,8 @@ export default function Sidebar() {
               <label>
                 Persona
                 <select value={template} onChange={e => setTemplate(e.target.value as Template)}>
+                  <option value="niyero">Kapitan Niyero (Seafarer Mentor)</option>
                   <option value="papap-pipoy">Papap Pipoy (Orbitz Radio)</option>
-                  <option value="pappa-aldo">Pappa Aldo (Seafarer Mentor)</option>
                 </select>
               </label>
               <label>
