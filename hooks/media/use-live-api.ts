@@ -1,3 +1,4 @@
+
 /**
  * @license
  * SPDX-License-Identifier: Apache-2.0
@@ -36,6 +37,8 @@ export type UseLiveApiResults = {
   connected: boolean;
 
   volume: number;
+  isVolumeEnabled: boolean;
+  setVolumeEnabled: (enabled: boolean) => void;
 };
 
 export function useLiveApi({
@@ -51,6 +54,7 @@ export function useLiveApi({
   const [volume, setVolume] = useState(0);
   const [connected, setConnected] = useState(false);
   const [config, setConfig] = useState<LiveConnectConfig>({});
+  const [isVolumeEnabled, setVolumeEnabled] = useState(true);
 
   // register audio for streaming server -> speakers
   useEffect(() => {
@@ -70,6 +74,13 @@ export function useLiveApi({
       });
     }
   }, [audioStreamerRef]);
+
+  // Handle output muting
+  useEffect(() => {
+    if (audioStreamerRef.current) {
+      audioStreamerRef.current.gainNode.gain.value = isVolumeEnabled ? 1.0 : 0.0;
+    }
+  }, [isVolumeEnabled]);
 
   useEffect(() => {
     const onOpen = () => {
@@ -170,5 +181,7 @@ export function useLiveApi({
     connected,
     disconnect,
     volume,
+    isVolumeEnabled,
+    setVolumeEnabled,
   };
 }

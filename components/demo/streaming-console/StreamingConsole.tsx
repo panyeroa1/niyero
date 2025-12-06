@@ -3,10 +3,10 @@
  * @license
  * SPDX-License-Identifier: Apache-2.0
 */
-import { useEffect, useRef, useState } from 'react';
-import PopUp from '../popup/PopUp';
+import { useEffect, useRef } from 'react';
+import Orb from './Orb';
 import WelcomeScreen from '../welcome-screen/WelcomeScreen';
-import { LiveConnectConfig, Modality, LiveServerContent, Tool } from '@google/genai';
+import { Modality, LiveServerContent, Tool } from '@google/genai';
 
 import { useLiveAPIContext } from '../../../contexts/LiveAPIContext';
 import {
@@ -18,40 +18,6 @@ import {
 } from '@/lib/state';
 import { checkCorrection } from '@/lib/supervisor';
 
-const formatTimestamp = (date: Date) => {
-  const pad = (num: number, size = 2) => num.toString().padStart(size, '0');
-  const hours = pad(date.getHours());
-  const minutes = pad(date.getMinutes());
-  const seconds = pad(date.getSeconds());
-  const milliseconds = pad(date.getMilliseconds(), 3);
-  return `${hours}:${minutes}:${seconds}.${milliseconds}`;
-};
-
-const renderContent = (text: string) => {
-  // Split by ```json...``` code blocks
-  const parts = text.split(/(`{3}json\n[\s\S]*?\n`{3})/g);
-
-  return parts.map((part, index) => {
-    if (part.startsWith('```json')) {
-      const jsonContent = part.replace(/^`{3}json\n|`{3}$/g, '');
-      return (
-        <pre key={index}>
-          <code>{jsonContent}</code>
-        </pre>
-      );
-    }
-
-    // Split by **bold** text
-    const boldParts = part.split(/(\*\*.*?\*\*)/g);
-    return boldParts.map((boldPart, boldIndex) => {
-      if (boldPart.startsWith('**') && boldPart.endsWith('**')) {
-        return <strong key={boldIndex}>{boldPart.slice(2, -2)}</strong>;
-      }
-      return boldPart;
-    });
-  });
-};
-
 
 export default function StreamingConsole() {
   const { client, setConfig, connected } = useLiveAPIContext();
@@ -60,9 +26,6 @@ export default function StreamingConsole() {
   const turns = useLogStore(state => state.turns);
   const { addSuggestion, setAnalyzing } = useSupervisor();
   
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [showPopUp, setShowPopUp] = useState(true);
-
   // Silence Detection Refs
   const lastActivityRef = useRef(Date.now());
   const silenceStageRef = useRef<number>(0); // 0 = none, 1 = warning, 2 = persistent
@@ -73,10 +36,6 @@ export default function StreamingConsole() {
 
   // We need to access the API key to perform the supervisor check.
   const API_KEY = process.env.API_KEY as string;
-
-  const handleClosePopUp = () => {
-    setShowPopUp(false);
-  };
 
   // Reset refs when disconnected
   useEffect(() => {
@@ -331,64 +290,23 @@ export default function StreamingConsole() {
     };
   }, [client]);
 
-  useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
-  }, [turns]);
-
   return (
-    <div className="transcription-container">
-      {showPopUp && <PopUp onClose={handleClosePopUp} />}
-      {turns.length === 0 ? (
+    <div className="main-console-container">
+      {!connected ? (
         <WelcomeScreen />
       ) : (
-        <div className="transcription-view" ref={scrollRef}>
-          {turns.map((t, i) => (
-            <div
-              key={i}
-              className={`transcription-entry ${t.role} ${!t.isFinal ? 'interim' : ''
-                }`}
-            >
-              <div className="transcription-header">
-                <div className="transcription-source">
-                  {t.role === 'user'
-                    ? 'You'
-                    : t.role === 'agent'
-                      ? 'Agent'
-                      : 'System'}
-                </div>
-                <div className="transcription-timestamp">
-                  {formatTimestamp(t.timestamp)}
-                </div>
-              </div>
-              <div className="transcription-text-content">
-                {renderContent(t.text)}
-              </div>
-              {t.groundingChunks && t.groundingChunks.length > 0 && (
-                <div className="grounding-chunks">
-                  <strong>Sources:</strong>
-                  <ul>
-                    {t.groundingChunks
-                      .filter(chunk => chunk.web?.uri)
-                      .map((chunk, index) => (
-                        <li key={index}>
-                          <a
-                            href={chunk.web?.uri}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            {chunk.web?.title || chunk.web?.uri}
-                          </a>
-                        </li>
-                      ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
+        <Orb />
       )}
+      <style>{`
+        .main-console-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+      `}</style>
     </div>
   );
 }

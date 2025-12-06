@@ -43,7 +43,7 @@ function ControlTray({ children }: ControlTrayProps) {
   // History for rolling graph
   const historyRef = useRef<number[]>(new Array(30).fill(0));
 
-  const { client, connected, connect, disconnect } = useLiveAPIContext();
+  const { client, connected, connect, disconnect, isVolumeEnabled, setVolumeEnabled } = useLiveAPIContext();
 
   useEffect(() => {
     if (!connected && connectButtonRef.current) {
@@ -149,39 +149,6 @@ function ControlTray({ children }: ControlTrayProps) {
     }
   };
 
-  const handleExportLogs = () => {
-    const { systemPrompt, model } = useSettings.getState();
-    const { tools } = useTools.getState();
-    const { turns } = useLogStore.getState();
-    const { suggestions, appliedCorrections } = useSupervisor.getState();
-
-    const logData = {
-      configuration: {
-        model,
-        systemPrompt,
-      },
-      tools,
-      suggestions,
-      appliedCorrections,
-      conversation: turns.map(turn => ({
-        ...turn,
-        timestamp: turn.timestamp.toISOString(),
-      })),
-    };
-
-    const jsonString = JSON.stringify(logData, null, 2);
-    const blob = new Blob([jsonString], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    a.href = url;
-    a.download = `live-api-logs-${timestamp}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
-
   const micButtonTitle = connected
     ? muted
       ? 'Unmute microphone'
@@ -212,11 +179,14 @@ function ControlTray({ children }: ControlTrayProps) {
         </button>
         <button
           className={cn('action-button')}
-          onClick={handleExportLogs}
-          aria-label="Export Logs"
-          title="Export session logs"
+          onClick={() => setVolumeEnabled(!isVolumeEnabled)}
+          title={isVolumeEnabled ? "Mute Output" : "Unmute Output"}
         >
-          <span className="icon">download</span>
+          {isVolumeEnabled ? (
+            <span className="material-symbols-outlined filled">volume_up</span>
+          ) : (
+            <span className="material-symbols-outlined filled">volume_off</span>
+          )}
         </button>
         <button
           className={cn('action-button')}

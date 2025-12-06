@@ -1,3 +1,4 @@
+
 /**
  * @license
  * SPDX-License-Identifier: Apache-2.0
@@ -10,9 +11,7 @@ export default function Header() {
   return (
     <header>
       <div className="header-left">
-        <h1>Native Audio Function Call Sandbox</h1>
-        <p>Copy the app and ask the Code Assistant to add function calls.</p>
-        <p>Build your own function call experiment.</p>
+        <h1>Eburon</h1>
       </div>
       <div className="header-right">
         <button

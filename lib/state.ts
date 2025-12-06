@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
 */
 import { create } from 'zustand';
-import { customerSupportTools } from './tools/customer-support';
+import { seafarerTools } from './tools/seafarer-tools';
 import { DEFAULT_LIVE_API_MODEL, DEFAULT_VOICE } from './constants';
 import {
   FunctionResponse,
@@ -15,8 +15,8 @@ import {
 export type Template = 'papap-pipoy' | 'pappa-aldo';
 
 const toolsets: Record<Template, FunctionCall[]> = {
-  'papap-pipoy': customerSupportTools,
-  'pappa-aldo': customerSupportTools,
+  'papap-pipoy': seafarerTools,
+  'pappa-aldo': seafarerTools,
 };
 
 const systemPrompts: Record<Template, string> = {
@@ -501,7 +501,7 @@ export const useSettings = create<{
   systemPrompt: systemPrompts['papap-pipoy'],
   model: DEFAULT_LIVE_API_MODEL,
   voice: DEFAULT_VOICE,
-  style: 'Phone Call',
+  style: 'Energetic',
   googleSearch: false,
   setSystemPrompt: prompt => set({ systemPrompt: prompt }),
   setModel: model => set({ model }),
@@ -581,7 +581,7 @@ export const useTools = create<{
   removeTool: (toolName: string) => void;
   updateTool: (oldName: string, updatedTool: FunctionCall) => void;
 }>(set => ({
-  tools: customerSupportTools,
+  tools: seafarerTools,
   template: 'papap-pipoy',
   setTemplate: (template: Template) => {
     set({ tools: toolsets[template], template });
