@@ -1,0 +1,7 @@
+{
+  "name": "Panyero",
+  "description": "Kapanyero Vessels",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
