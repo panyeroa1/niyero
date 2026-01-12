@@ -1,6 +1,6 @@
 {
-  "name": "Panyero",
-  "description": "Kapanyero Vessels",
+  "name": "Panyero 2D/3D",
+  "description": "Kapanyero Vessels & Lotto Tracking",
   "requestFramePermissions": [
     "microphone"
   ]

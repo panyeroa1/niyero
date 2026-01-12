@@ -1,56 +1,104 @@
+
 /**
  * @license
  * SPDX-License-Identifier: Apache-2.0
 */
-/**
- * Copyright 2024 Google LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-import ControlTray from './components/console/control-tray/ControlTray';
-import ErrorScreen from './components/demo/ErrorScreen';
-import StreamingConsole from './components/demo/streaming-console/StreamingConsole';
-
+import React from 'react';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
+import BottomNav from './components/BottomNav';
+import HomeView from './components/views/HomeView';
+import ResultsView from './components/views/ResultsView';
+import HistoryView from './components/views/HistoryView';
+import AlertsView from './components/views/AlertsView';
+import SettingsView from './components/views/SettingsView';
+import ErrorScreen from './components/demo/ErrorScreen';
+import StreamingConsole from './components/demo/streaming-console/StreamingConsole';
+import ControlTray from './components/console/control-tray/ControlTray';
 import { LiveAPIProvider } from './contexts/LiveAPIContext';
+import { useUI } from './lib/state';
 
-// Get API key from process.env.API_KEY as per coding guidelines
 const API_KEY = process.env.API_KEY as string;
 
-/**
- * Main application component that provides a streaming interface for Live API.
- * Manages video streaming state and provides controls for webcam/screen capture.
- */
 function App() {
+  const { activeTab, isSidebarOpen } = useUI();
+
+  const renderView = () => {
+    switch (activeTab) {
+      case 'home': return <HomeView />;
+      case 'results': return <ResultsView />;
+      case 'history': return <HistoryView />;
+      case 'alerts': return <AlertsView />;
+      case 'settings': return <SettingsView />;
+      default: return <HomeView />;
+    }
+  };
+
   return (
-    <div className="App">
+    <div className="App mobile-wrapper">
       <LiveAPIProvider apiKey={API_KEY}>
         <ErrorScreen />
         <Header />
         <Sidebar />
-        <div className="streaming-console">
-          <main>
-            <div className="main-app-area">
-              <StreamingConsole />
+        
+        <main className="tab-container">
+          {renderView()}
+        </main>
 
-            </div>
-
-            <ControlTray></ControlTray>
-          </main>
+        {/* Floating Voice Assistant (Orb + Tray) */}
+        <div className={`floating-assistant ${isSidebarOpen ? 'shifted' : ''}`}>
+           <StreamingConsole />
+           <ControlTray />
         </div>
+
+        <BottomNav />
       </LiveAPIProvider>
+      
+      <style>{`
+        .mobile-wrapper {
+          display: flex;
+          flex-direction: column;
+          height: 100vh;
+          width: 100vw;
+          overflow: hidden;
+          background: var(--Neutral-00);
+          position: relative;
+        }
+        .tab-container {
+          flex: 1;
+          overflow-y: auto;
+          padding: 70px 16px 140px; /* Header space and Bottom nav + Assistant space */
+          -webkit-overflow-scrolling: touch;
+        }
+        .floating-assistant {
+          position: fixed;
+          bottom: 70px; /* Above BottomNav */
+          left: 50%;
+          transform: translateX(-50%);
+          width: 100%;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          pointer-events: none;
+          z-index: 500;
+          transition: transform 0.3s ease;
+        }
+        .floating-assistant > * {
+          pointer-events: auto;
+        }
+        .floating-assistant.shifted {
+          transform: translateX(-150%); /* Move out of way when sidebar open on desktop */
+        }
+        
+        @media (min-width: 1024px) {
+          .mobile-wrapper {
+             max-width: 430px; /* Mobile simulation on desktop */
+             margin: 0 auto;
+             border-left: 1px solid var(--gray-800);
+             border-right: 1px solid var(--gray-800);
+          }
+        }
+      `}</style>
     </div>
   );
 }

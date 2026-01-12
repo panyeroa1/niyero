@@ -12,9 +12,7 @@ export default function Orb() {
 
   useEffect(() => {
     if (orbRef.current) {
-        // Base size is 150px
-        // Scale factor: 1 + volume * 0.5 (max 1.5x size)
-        const scale = 1 + Math.max(0, volume) * 0.5;
+        const scale = 1 + Math.max(0, volume) * 0.8;
         orbRef.current.style.transform = `scale(${scale})`;
     }
   }, [volume]);
@@ -32,11 +30,11 @@ export default function Orb() {
             position: relative;
         }
         .orb {
-            width: 150px;
-            height: 150px;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
             background: radial-gradient(circle at 30% 30%, var(--Blue-400), var(--Blue-500));
-            box-shadow: 0 0 60px var(--Blue-500), inset 0 0 40px var(--Blue-400);
+            box-shadow: 0 0 30px var(--Blue-500), inset 0 0 20px var(--Blue-400);
             transition: transform 0.05s ease-out;
             will-change: transform;
             z-index: 10;

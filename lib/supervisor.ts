@@ -1,5 +1,4 @@
 
-
 /**
  * @license
  * SPDX-License-Identifier: Apache-2.0
@@ -74,8 +73,9 @@ export async function checkCorrection(
       }
     `;
 
+    // Use gemini-3-flash-preview for basic text tasks like correction analysis.
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-3-flash-preview',
       contents: prompt,
       config: {
         responseMimeType: 'application/json',
